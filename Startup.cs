@@ -1,10 +1,17 @@
 using DadsInventory.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RunningActivityTracker.Auth;
+using RunningActivityTracker.Entities;
+using RunningActivityTracker.Repositories;
+using RunningActivityTracker.Services;
 
 namespace DadsInventory
 {
@@ -22,15 +29,22 @@ namespace DadsInventory
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
+            services.AddScoped<IUserRepository, UserRepository>();
+            //services.AddDefaultIdentity<IdentityUser>();
+               
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllersWithViews();
+            services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline. , UserManager<UserEntity> userManager
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -48,7 +62,9 @@ namespace DadsInventory
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+   
 
             app.UseEndpoints(endpoints =>
             {
