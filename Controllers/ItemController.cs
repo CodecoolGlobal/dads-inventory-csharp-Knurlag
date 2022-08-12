@@ -1,10 +1,12 @@
 ﻿using System.Linq;
 using DadsInventory.Models;
 using DadsInventory.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DadsInventory.Controllers
 {
+    [Authorize]
     public class ItemController : Controller
     {
         private readonly IItemRepository _itemRepository;
@@ -15,7 +17,7 @@ namespace DadsInventory.Controllers
             _itemRepository = itemRepository;
             _categoryRepository = categoryRepository;
         }
-
+        [AllowAnonymous]
         public ViewResult List(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
@@ -29,7 +31,7 @@ namespace DadsInventory.Controllers
 
             return View(itemsListViewModel);
         }
-
+        [Authorize(Roles = "Dad")]
         public IActionResult Details(int id)
         {
             var item = _itemRepository.GetItemById(id);
