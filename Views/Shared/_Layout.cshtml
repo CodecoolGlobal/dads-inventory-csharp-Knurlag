@@ -24,6 +24,14 @@
                         
                     </ul>
                 </div>
+                 @if (Context.User.Identity.IsAuthenticated)
+                 {
+                     <div>Hi @Context.User.Identity.Name</div>
+                 }
+                 else
+                 {
+                     <a asp-controller="Home" asp-action="Login">Login</a>
+                 }
             </div>
         </nav>
     </header>
